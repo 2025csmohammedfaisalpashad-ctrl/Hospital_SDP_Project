@@ -1,0 +1,472 @@
+/* ============================================================
+   HOSPITAL AUTHENTICATION PAGE
+   ============================================================ */
+
+.hospital-auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background: #f5f8fc;
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   LEFT IMAGE
+   ============================================================ */
+
+.hospital-image-side {
+  width: 52%;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #0d6efd;
+}
+
+.hospital-image {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  object-fit: cover;
+  display: block;
+}
+
+.hospital-image-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(4, 48, 92, 0.88),
+      rgba(13, 110, 253, 0.48)
+    );
+}
+
+.hospital-image-content {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  z-index: 2;
+}
+
+.hospital-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.hospital-image-content h1 {
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.08;
+  font-weight: 800;
+  margin: 0 0 20px;
+  letter-spacing: -1px;
+}
+
+.hospital-image-content p {
+  max-width: 580px;
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hospital-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.hospital-feature-list div {
+  display: flex;
+  align-items: center;
+}
+
+
+/* ============================================================
+   RIGHT FORM AREA
+   ============================================================ */
+
+.hospital-form-side {
+  width: 48%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.hospital-form-container {
+  width: 100%;
+  max-width: 590px;
+}
+
+
+/* ============================================================
+   FORM HEADING
+   ============================================================ */
+
+.form-heading {
+  margin-bottom: 30px;
+}
+
+.form-heading h2 {
+  color: #12365a;
+  font-size: 32px;
+  font-weight: 750;
+  margin-bottom: 8px;
+}
+
+.form-heading p {
+  color: #718096;
+  margin: 0;
+  font-size: 15px;
+}
+
+
+/* ============================================================
+   FORM FIELDS
+   ============================================================ */
+
+.auth-field {
+  margin-bottom: 20px;
+}
+
+.auth-field label {
+  display: block;
+  color: #243b53;
+  font-size: 14px;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  z-index: 2;
+  font-size: 16px;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #d9e2ec;
+  border-radius: 11px;
+  background: #f8fafc;
+  color: #243b53;
+  padding: 0 15px 0 45px;
+  outline: none;
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.input-wrapper select {
+  appearance: auto;
+}
+
+.input-wrapper input::placeholder {
+  color: #9aa7b5;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+  border-color: #0d6efd;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.input-wrapper input:disabled,
+.input-wrapper select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   REGISTER TWO-COLUMN FORM
+   ============================================================ */
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+
+/* ============================================================
+   BUTTON
+   ============================================================ */
+
+.auth-primary-button {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 11px;
+  background: linear-gradient(
+    135deg,
+    #0d6efd,
+    #1769d2
+  );
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.auth-primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 20px rgba(13, 110, 253, 0.25);
+}
+
+.auth-primary-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.auth-primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.button-arrow {
+  font-size: 19px;
+}
+
+
+/* ============================================================
+   SPINNER
+   ============================================================ */
+
+.button-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: auth-spin 0.7s linear infinite;
+}
+
+@keyframes auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   ERROR / SUCCESS
+   ============================================================ */
+
+.auth-error {
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #b42318;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.auth-success {
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+  color: #067647;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+
+/* ============================================================
+   LOGIN / REGISTER SWITCH
+   ============================================================ */
+
+.auth-switch {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 14px;
+  color: #718096;
+}
+
+.auth-switch button {
+  border: none;
+  background: transparent;
+  color: #0d6efd;
+  font-weight: 700;
+  margin-left: 6px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.auth-switch button:hover {
+  text-decoration: underline;
+}
+
+
+/* ============================================================
+   MOBILE BRAND
+   ============================================================ */
+
+.mobile-hospital-brand {
+  display: none;
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 1000px) {
+
+  .hospital-image-side {
+    width: 45%;
+  }
+
+  .hospital-form-side {
+    width: 55%;
+    padding: 30px;
+  }
+
+  .hospital-image-content {
+    left: 8%;
+    right: 8%;
+  }
+
+  .hospital-image-content h1 {
+    font-size: 36px;
+  }
+
+  .hospital-image-content p {
+    font-size: 14px;
+  }
+
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  .hospital-auth-page {
+    min-height: 100vh;
+    display: block;
+    overflow: visible;
+  }
+
+  .hospital-image-side {
+    display: none;
+  }
+
+  .hospital-form-side {
+    width: 100%;
+    min-height: 100vh;
+    padding: 30px 20px;
+    align-items: flex-start;
+  }
+
+  .hospital-form-container {
+    max-width: 520px;
+    margin: auto;
+  }
+
+  .mobile-hospital-brand {
+    display: block;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .mobile-logo {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 12px;
+    border-radius: 16px;
+    background: #eaf3ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .mobile-hospital-brand h2 {
+    color: #12365a;
+    font-size: 23px;
+    font-weight: 750;
+    margin: 0;
+  }
+
+  .mobile-hospital-brand p {
+    color: #718096;
+    margin: 3px 0 0;
+    font-size: 14px;
+  }
+
+  .form-heading h2 {
+    font-size: 27px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+  .hospital-form-side {
+    padding: 25px 16px;
+  }
+
+  .form-heading h2 {
+    font-size: 24px;
+  }
+
+  .auth-field {
+    margin-bottom: 17px;
+  }
+
+}

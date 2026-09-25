@@ -1,0 +1,46 @@
+body {
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  min-height: 100vh;
+}
+
+.container {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  max-width: 800px;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+.panel-card {
+  border: none;
+  border-radius: 20px;
+}
+
+.login-card {
+  max-width: 420px;
+  margin-top: 60px;
+}
+
+.form-control, .form-select {
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  border-radius: 10px;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
