@@ -22,9 +22,10 @@ REQUEST_STATUS = [
 ]
 
 # Roles are stored and checked in UPPERCASE everywhere in this system.
-# (Original code mixed "support_engineer" and "SUPPORT_ENGINEER" —
-# that mismatch is why engineer lookups used to silently fail.)
-ROLE_STAFF = "STAFF"
+# Renamed STAFF -> DEPARTMENT_STAFF to match the 4 required roles exactly.
+ROLE_DEPARTMENT_STAFF = "DEPARTMENT_STAFF"
 ROLE_SUPPORT_ENGINEER = "SUPPORT_ENGINEER"
 ROLE_TEAM_LEAD = "TEAM_LEAD"
 ROLE_ADMIN = "ADMIN"
+
+ALL_ROLES = [ROLE_DEPARTMENT_STAFF, ROLE_SUPPORT_ENGINEER, ROLE_TEAM_LEAD, ROLE_ADMIN]

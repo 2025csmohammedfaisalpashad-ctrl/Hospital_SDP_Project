@@ -2,32 +2,41 @@
 # HOSPITAL SUPPORT REQUEST SYSTEM — MAIN APP
 # ============================================================
 # There is exactly ONE FastAPI() instance in the whole project.
-# The original code created three separate `app = FastAPI(...)`
-# objects across the pasted-together files; each reassignment
-# effectively orphaned the routes that had already been attached
-# to the previous object, so most of the staff/engineer endpoints
-# never actually mounted. Every role here is a router included
-# into this single app instead.
+# Every role is a router included into this single app.
 #
 # Run with:  uvicorn main:app --reload
 
 from datetime import datetime
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 import admin_routes
+import auth_routes
 import engineer_routes
 import staff_routes
 import teamlead_routes
-from constants import ROLE_SUPPORT_ENGINEER, ROLE_TEAM_LEAD
+from auth import hash_password
+from constants import ROLE_ADMIN, ROLE_DEPARTMENT_STAFF, ROLE_SUPPORT_ENGINEER, ROLE_TEAM_LEAD
 from database import category_collection, department_collection, request_collection, user_collection
 
 app = FastAPI(
     title="Hospital Support Request System",
-    description="Staff -> Support Engineer -> Team Lead -> Admin escalation workflow",
-    version="1.0.0",
+    description="Login -> role-specific dashboard: Staff -> Support Engineer -> Team Lead -> Admin",
+    version="2.0.0",
 )
 
+# Without this, the browser blocks every request coming from the React
+# dev server (localhost:5173) because it's a different origin/port than
+# this API (localhost:8000).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_routes.router)
 app.include_router(staff_routes.router)
 app.include_router(engineer_routes.router)
 app.include_router(teamlead_routes.router)
@@ -40,48 +49,44 @@ def home():
 
 
 # ------------------------------------------------------------
-# Sample data
+# Sample / demo data
 # ------------------------------------------------------------
+# Demo login credentials (change these before any real deployment):
+#   admin    / Admin@123     -> ADMIN
+#   teamlead / Teamlead@123  -> TEAM_LEAD
+#   engineer / Engineer@123  -> SUPPORT_ENGINEER (Arun Kumar, Equipment dept)
+#   vijay    / Vijay@123     -> SUPPORT_ENGINEER (Vijay Kumar, IT dept)
+#   staff    / Staff@123     -> DEPARTMENT_STAFF (Nursing dept)
+#
+# Each demo user is written with update_one(..., upsert=True), so:
+#   - re-running the server never creates duplicates
+#   - if a user already exists from before this upgrade (no password_hash
+#     yet), it gets patched with one instead of being skipped
+def _seed_user(user_id, name, username, password, role, department):
+    user_collection.update_one(
+        {"user_id": user_id},
+        {
+            "$set": {
+                "user_id": user_id,
+                "name": name,
+                "username": username,
+                "password_hash": hash_password(password),
+                "role": role,
+                "department": department,
+            }
+        },
+        upsert=True,
+    )
+
+
 def initialize_sample_data():
 
-    if user_collection.find_one({"user_id": "ENG205"}) is None:
-        user_collection.insert_one(
-            {
-                "user_id": "ENG205",
-                "name": "Arun Kumar",
-                "username": "arun",
-                "role": ROLE_SUPPORT_ENGINEER,
-                "department": "Equipment",
-            }
-        )
+    _seed_user("ADM001", "System Admin", "admin", "Admin@123", ROLE_ADMIN, "Administration")
+    _seed_user("TL001", "Team Lead", "teamlead", "Teamlead@123", ROLE_TEAM_LEAD, "Hospital Support")
+    _seed_user("ENG205", "Arun Kumar", "engineer", "Engineer@123", ROLE_SUPPORT_ENGINEER, "Equipment")
+    _seed_user("ENG210", "Vijay Kumar", "vijay", "Vijay@123", ROLE_SUPPORT_ENGINEER, "IT")
+    _seed_user("STF001", "Department Staff", "staff", "Staff@123", ROLE_DEPARTMENT_STAFF, "Nursing")
 
-    if user_collection.find_one({"user_id": "ENG210"}) is None:
-        user_collection.insert_one(
-            {
-                "user_id": "ENG210",
-                "name": "Vijay Kumar",
-                "username": "vijay",
-                "role": ROLE_SUPPORT_ENGINEER,
-                "department": "IT",
-            }
-        )
-
-    if user_collection.find_one({"user_id": "TL001"}) is None:
-        user_collection.insert_one(
-            {
-                "user_id": "TL001",
-                "name": "Team Lead",
-                "username": "teamlead",
-                "role": ROLE_TEAM_LEAD,
-                "department": "Hospital Support",
-            }
-        )
-
-    # The original sample request pointed at a "Nursing" department and an
-    # "EQUIPMENT_ISSUE" category that were never actually created anywhere —
-    # so staff's own department/category checks would have rejected any
-    # real request to either of them. Seeded here so the system is usable
-    # out of the box.
     if department_collection.find_one({"name": "Nursing"}) is None:
         department_collection.insert_one(
             {"name": "Nursing", "description": "Nursing department", "created_at": datetime.utcnow()}

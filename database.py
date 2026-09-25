@@ -1,18 +1,27 @@
 # ============================================================
 # SINGLE SHARED MONGODB CONNECTION
 # ============================================================
-# Every role (staff / engineer / team lead / admin) reads and writes
-# the SAME collections in the SAME database. In the original code,
-# the "Team Lead" file connected to a totally different database
-# ("MyDB" + "service_requests") than everyone else ("hospital_support"
-# + "requests") — so requests created by staff were invisible to the
-# team lead, and anything the team lead did was invisible to admin.
-# That is fixed by having exactly one connection module, imported
-# everywhere.
+# The connection string now comes from the MONGO_URL environment
+# variable (loaded from a local .env file) instead of being
+# hard-coded. This is what lets all 4 laptops point at the SAME
+# MongoDB Atlas database instead of each using its own localhost
+# MongoDB. Database name and collection names are unchanged.
 
+import os
+
+from dotenv import load_dotenv
 from pymongo import MongoClient
 
-MONGO_URL = "mongodb://localhost:27017/"
+load_dotenv()  # reads .env from the current working directory
+
+MONGO_URL = os.getenv("MONGO_URL")
+
+if not MONGO_URL:
+    raise RuntimeError(
+        "MONGO_URL is not set. Create a .env file in the backend folder "
+        "(copy .env.example -> .env and fill in your MongoDB Atlas "
+        "connection string) before starting the server."
+    )
 
 client = MongoClient(MONGO_URL)
 db = client["hospital_support"]

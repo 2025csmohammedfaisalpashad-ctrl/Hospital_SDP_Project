@@ -1,13 +1,18 @@
 # ============================================================
 # SUPPORT ENGINEER ROUTES
 # ============================================================
+# Every route requires a valid SUPPORT_ENGINEER token, AND the
+# {engineer_id} in the URL must match the token's own user_id.
+# This is what stops engineer ENG205 from reading ENG210's
+# assigned requests just by editing the URL.
 
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from auth import require_role
 from constants import ROLE_SUPPORT_ENGINEER
-from database import client, comments_collection, db, request_collection, user_collection
+from database import client, comments_collection, db, request_collection
 from models import CommentRecord, RequestStatusUpdate
 
 router = APIRouter(prefix="/engineer", tags=["Support Engineer"])
@@ -16,19 +21,23 @@ router = APIRouter(prefix="/engineer", tags=["Support Engineer"])
 ENGINEER_ALLOWED_STATUSES = ["IN_PROGRESS", "ON_HOLD", "RESOLVED"]
 
 
-def _get_engineer_or_404(engineer_id: str):
-    engineer = user_collection.find_one({"user_id": engineer_id, "role": ROLE_SUPPORT_ENGINEER})
-    if engineer is None:
-        raise HTTPException(status_code=404, detail="Support engineer not found")
-    return engineer
+def _verify_self(engineer_id: str, current_user: dict):
+    """The URL's engineer_id must be the same engineer as the token.
+    Without this, any engineer could read/edit any other engineer's
+    requests just by changing the URL."""
+    if engineer_id != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="You can only access your own assigned requests")
 
 
 # ------------------------------------------------------------
 # Assigned requests
 # ------------------------------------------------------------
 @router.get("/{engineer_id}/requests")
-def get_assigned_requests(engineer_id: str):
-    _get_engineer_or_404(engineer_id)
+def get_assigned_requests(
+    engineer_id: str,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     requests = list(
         request_collection.find({"assigned_to": engineer_id}, {"_id": 0}).sort("created_at", -1)
@@ -37,8 +46,12 @@ def get_assigned_requests(engineer_id: str):
 
 
 @router.get("/{engineer_id}/requests/status/{status}")
-def get_engineer_requests_by_status(engineer_id: str, status: str):
-    _get_engineer_or_404(engineer_id)
+def get_engineer_requests_by_status(
+    engineer_id: str,
+    status: str,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     requests = list(
         request_collection.find(
@@ -54,8 +67,12 @@ def get_engineer_requests_by_status(engineer_id: str, status: str):
 
 
 @router.get("/{engineer_id}/requests/priority/{priority}")
-def get_engineer_requests_by_priority(engineer_id: str, priority: str):
-    _get_engineer_or_404(engineer_id)
+def get_engineer_requests_by_priority(
+    engineer_id: str,
+    priority: str,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     requests = list(
         request_collection.find(
@@ -71,8 +88,12 @@ def get_engineer_requests_by_priority(engineer_id: str, priority: str):
 
 
 @router.get("/{engineer_id}/requests/{request_id}")
-def get_assigned_request(engineer_id: str, request_id: str):
-    _get_engineer_or_404(engineer_id)
+def get_assigned_request(
+    engineer_id: str,
+    request_id: str,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     request = request_collection.find_one(
         {"request_id": request_id, "assigned_to": engineer_id}, {"_id": 0}
@@ -86,8 +107,13 @@ def get_assigned_request(engineer_id: str, request_id: str):
 # Update status
 # ------------------------------------------------------------
 @router.put("/{engineer_id}/requests/{request_id}/status")
-def update_request_status(engineer_id: str, request_id: str, data: RequestStatusUpdate):
-    _get_engineer_or_404(engineer_id)
+def update_request_status(
+    engineer_id: str,
+    request_id: str,
+    data: RequestStatusUpdate,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     existing_request = request_collection.find_one(
         {"request_id": request_id, "assigned_to": engineer_id}
@@ -117,8 +143,13 @@ def update_request_status(engineer_id: str, request_id: str, data: RequestStatus
 # Comments / resolution notes
 # ------------------------------------------------------------
 @router.post("/{engineer_id}/requests/{request_id}/comments")
-def add_engineer_comment(engineer_id: str, request_id: str, data: CommentRecord):
-    _get_engineer_or_404(engineer_id)
+def add_engineer_comment(
+    engineer_id: str,
+    request_id: str,
+    data: CommentRecord,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     existing_request = request_collection.find_one(
         {"request_id": request_id, "assigned_to": engineer_id}
@@ -146,8 +177,11 @@ def add_engineer_comment(engineer_id: str, request_id: str, data: CommentRecord)
 # Workload summary
 # ------------------------------------------------------------
 @router.get("/{engineer_id}/summary")
-def get_engineer_summary(engineer_id: str):
-    _get_engineer_or_404(engineer_id)
+def get_engineer_summary(
+    engineer_id: str,
+    current_user: dict = Depends(require_role(ROLE_SUPPORT_ENGINEER)),
+):
+    _verify_self(engineer_id, current_user)
 
     counts = {
         status: request_collection.count_documents({"assigned_to": engineer_id, "status": status})
@@ -162,7 +196,7 @@ def get_engineer_summary(engineer_id: str):
 
 
 # ------------------------------------------------------------
-# Health check
+# Health check (kept public/unauthenticated on purpose)
 # ------------------------------------------------------------
 @router.get("/health")
 def engineer_health_check():
